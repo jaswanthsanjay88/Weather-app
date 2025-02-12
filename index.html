@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Farmer's Weather Assistant</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Farmer's Weather Assistant</h1>
+            <div class="location-controls">
+                <input type="text" id="location" placeholder="Enter location">
+                <button id="getLocation">Use My Location</button>
+            </div>
+        </header>
+        
+        <div class="weather-grid">
+            <div class="current-weather">
+                <h2>Current Conditions</h2>
+                <div id="current-data"></div>
+            </div>
+            
+            <div class="farming-conditions">
+                <h2>Farming Conditions</h2>
+                <div id="soil-data"></div>
+                <div id="precipitation-chance"></div>
+                <div id="wind-conditions"></div>
+            </div>
+
+            <div class="forecast">
+                <h2>5-Day Forecast</h2>
+                <div id="forecast-container"></div>
+            </div>
+        </div>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>
