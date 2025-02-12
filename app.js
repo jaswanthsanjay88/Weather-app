@@ -70,47 +70,88 @@ function getUserLocation() {
 
 async function getWeatherDataByCoords(lat, lon) {
     try {
-        document.getElementById('current-data').innerHTML = '<p>Loading weather data...</p>';
+        showLoading();
+        if (!navigator.onLine) {
+            throw new Error('No internet connection');
+        }
+        
         const url = `${API_CONFIG.baseUrl}/current.json?key=${API_CONFIG.key}&q=${lat},${lon}&aqi=no`;
         const response = await fetch(url);
         
-        if (!response.ok) throw new Error('Weather data request failed');
-        
-        const data = await response.json();
-        updateLocationInfo(data.location);
-        updateWeatherDisplay(data);
-    } catch (error) {
-        console.error('Error:', error);
-        document.getElementById('current-data').innerHTML = 
-            '<p>Error loading weather data. Please try again.</p>';
-    }
-}
-
-async function getWeatherData(location) {
-    try {
-        document.getElementById('current-data').innerHTML = '<p>Loading weather data...</p>';
-        
-        // Remove coordinate matching as we're focusing on city search
-        const url = `${API_CONFIG.baseUrl}/current.json?key=${API_CONFIG.key}&q=${encodeURIComponent(location)}&aqi=no`;
-        const response = await fetch(url);
-
         if (!response.ok) {
-            throw new Error(response.status === 404 ? 
-                'City not found. Please check the spelling.' : 
-                'Weather data request failed');
+            throw new Error(getErrorMessage(response.status));
         }
         
         const data = await response.json();
         updateLocationInfo(data.location);
         updateWeatherDisplay(data);
+    } catch (error) {
+        console.error('Error:', error);
+        showError(error.message);
+    }
+}
+
+async function getWeatherData(location) {
+    try {
+        showLoading();
+        if (!navigator.onLine) {
+            throw new Error('No internet connection');
+        }
+
+        const url = `${API_CONFIG.baseUrl}/current.json?key=${API_CONFIG.key}&q=${encodeURIComponent(location)}&aqi=no`;
+        const response = await fetch(url);
+
+        if (!response.ok) {
+            throw new Error(getErrorMessage(response.status));
+        }
         
-        // Update input field with proper city name
+        const data = await response.json();
+        updateLocationInfo(data.location);
+        updateWeatherDisplay(data);
         document.getElementById('location').value = data.location.name;
     } catch (error) {
         console.error('Error:', error);
-        document.getElementById('current-data').innerHTML = 
-            `<p class="error-message">${error.message}</p>`;
+        showError(error.message);
     }
+}
+
+function getErrorMessage(status) {
+    switch (status) {
+        case 401: return 'Invalid API key';
+        case 404: return 'Location not found. Please check the spelling.';
+        case 429: return 'Too many requests. Please try again later.';
+        default: return 'Failed to fetch weather data. Please try again.';
+    }
+}
+
+function showLoading() {
+    document.getElementById('current-data').innerHTML = `
+        <div class="loading">
+            <div class="spinner"></div>
+            <p>Loading weather data...</p>
+        </div>
+    `;
+}
+
+function showError(message) {
+    document.getElementById('current-data').innerHTML = `
+        <div class="error-container">
+            <p class="error-message">${message}</p>
+            <button onclick="handleRetry()" class="retry-button">Try Again</button>
+        </div>
+    `;
+}
+
+function handleRetry() {
+    const location = document.getElementById('location').value.trim();
+    if (location.includes(',')) {
+        const [lat, lon] = location.split(',').map(coord => parseFloat(coord.trim()));
+        if (!isNaN(lat) && !isNaN(lon)) {
+            getWeatherDataByCoords(lat, lon);
+            return;
+        }
+    }
+    handleCitySearch();
 }
 
 // Update location info display to focus on city information

@@ -254,6 +254,38 @@ h3 {
     margin-top: 10px;
 }
 
+.error-container {
+    padding: 20px;
+    text-align: center;
+    background-color: #fff3f3;
+    border-radius: 8px;
+    margin: 20px 0;
+}
+
+.error-message {
+    color: #d32f2f;
+    margin-bottom: 15px;
+    font-size: 1.1em;
+}
+
+.error-message i {
+    margin-right: 8px;
+}
+
+.retry-button {
+    background-color: #2196f3;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.retry-button:hover {
+    background-color: #1976d2;
+}
+
 /* Add animations */
 @keyframes fadeIn {
     from { opacity: 0; }
@@ -281,6 +313,26 @@ h3 {
     background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
     background-size: 1000px 100%;
     animation: shimmer 2s infinite linear;
+}
+
+.loading {
+    text-align: center;
+    padding: 20px;
+}
+
+.spinner {
+    width: 40px;
+    height: 40px;
+    margin: 0 auto 10px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #3498db;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }
 
 .welcome-message {
