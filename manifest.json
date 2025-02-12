@@ -1,27 +1,21 @@
 {
     "name": "Weather Forecast",
     "short_name": "Weather",
-    "description": "Simple and elegant weather forecast application",
-    "start_url": "/index.html",
+    "start_url": ".",
     "display": "standalone",
-    "background_color": "#f1f5f9",
+    "background_color": "#ffffff",
     "theme_color": "#2563eb",
+    "description": "Weather forecast application",
     "icons": [
         {
-            "src": "icons/icon-72x72.png",
-            "sizes": "72x72",
-            "type": "image/png"
-        },
-        {
-            "src": "icons/icon-192x192.png",
+            "src": "./icons/weather-icon-192.png",
             "sizes": "192x192",
             "type": "image/png"
         },
         {
-            "src": "icons/icon-512x512.png",
+            "src": "./icons/weather-icon-512.png",
             "sizes": "512x512",
-            "type": "image/png",
-            "purpose": "any maskable"
+            "type": "image/png"
         }
     ]
 }

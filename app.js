@@ -1,6 +1,6 @@
 const API_CONFIG = {
     key: 'b2011dd465a840da948112534251202',
-    baseUrl: 'http://api.weatherapi.com/v1'
+    baseUrl: 'https://api.weatherapi.com/v1' // Changed to HTTPS
 };
 
 function handleCitySearch() {
@@ -68,6 +68,32 @@ function getUserLocation() {
 
 // Remove the showApiStatus function
 
+async function fetchWithTimeout(url, timeout = 8000) {
+    try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), timeout);
+        
+        const response = await fetch(url, {
+            signal: controller.signal,
+            headers: {
+                'Accept': 'application/json',
+                'Origin': window.location.origin
+            }
+        });
+        clearTimeout(timeoutId);
+        return response;
+    } catch (error) {
+        if (error.name === 'AbortError') {
+            throw new Error('Request timed out');
+        }
+        // Check if it's a CORS or network error
+        if (error.message.includes('Failed to fetch')) {
+            throw new Error('Network error - Please check your connection and try again');
+        }
+        throw error;
+    }
+}
+
 async function getWeatherDataByCoords(lat, lon) {
     try {
         showLoading();
@@ -76,18 +102,26 @@ async function getWeatherDataByCoords(lat, lon) {
         }
         
         const url = `${API_CONFIG.baseUrl}/current.json?key=${API_CONFIG.key}&q=${lat},${lon}&aqi=no`;
-        const response = await fetch(url);
+        const response = await fetchWithTimeout(url);
         
         if (!response.ok) {
             throw new Error(getErrorMessage(response.status));
         }
         
         const data = await response.json();
+        if (!data || !data.location) {
+            throw new Error('Invalid data received from weather service');
+        }
+        
         updateLocationInfo(data.location);
         updateWeatherDisplay(data);
     } catch (error) {
         console.error('Error:', error);
-        showError(error.message);
+        if (error.name === 'AbortError') {
+            showError('Request timed out. Please try again.');
+        } else {
+            showError(error.message || 'Failed to fetch weather data');
+        }
     }
 }
 
@@ -97,30 +131,50 @@ async function getWeatherData(location) {
         if (!navigator.onLine) {
             throw new Error('No internet connection');
         }
-
-        const url = `${API_CONFIG.baseUrl}/current.json?key=${API_CONFIG.key}&q=${encodeURIComponent(location)}&aqi=no`;
-        const response = await fetch(url);
-
+        // Ensure HTTPS
+        const url = `${API_CONFIG.baseUrl}/current.json?key=${API_CONFIG.key}&q=${encodeURIComponent(location)}`;
+        
+        const response = await fetchWithTimeout(url);
+        
         if (!response.ok) {
             throw new Error(getErrorMessage(response.status));
         }
         
         const data = await response.json();
+        if (!data || !data.location) {
+            throw new Error('Invalid data received');
+        }
+        
+        // Fix image URLs to use HTTPS
+        if (data.current && data.current.condition && data.current.condition.icon) {
+            data.current.condition.icon = data.current.condition.icon.replace('http:', 'https:');
+        }
+        
         updateLocationInfo(data.location);
         updateWeatherDisplay(data);
         document.getElementById('location').value = data.location.name;
     } catch (error) {
-        console.error('Error:', error);
-        showError(error.message);
+        handleError(error);
     }
+}
+
+function handleError(error) {
+    console.error('Error:', error);
+    let message = error.message;
+    if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
+        message = 'Network error - Please check your connection and try again';
+    }
+    showError(message);
 }
 
 function getErrorMessage(status) {
     switch (status) {
-        case 401: return 'Invalid API key';
+        case 0: return 'Network error - Please ensure you\'re using HTTPS';
+        case 401: return 'API key error - Please check configuration';
+        case 403: return 'Access forbidden - Please check HTTPS and CORS settings';
         case 404: return 'Location not found. Please check the spelling.';
         case 429: return 'Too many requests. Please try again later.';
-        default: return 'Failed to fetch weather data. Please try again.';
+        default: return `Weather service error (${status}). Please try again.`;
     }
 }
 
