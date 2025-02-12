@@ -3,38 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Farmer's Weather Assistant</title>
+    <title>Weather Forecast</title>
     <link rel="stylesheet" href="styles.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#2563eb">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="Weather">
+    <link rel="apple-touch-icon" href="icons/icon-192x192.png">
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>Farmer's Weather Assistant</h1>
+            <h1>Weather Forecast</h1>
             <div class="location-controls">
-                <input type="text" id="location" placeholder="Enter location">
+                <input type="text" id="location" placeholder="Enter city name">
+                <button id="searchCity">Search City</button>
                 <button id="getLocation">Use My Location</button>
             </div>
+            <div id="location-info" class="location-info"></div>
         </header>
         
         <div class="weather-grid">
             <div class="current-weather">
-                <h2>Current Conditions</h2>
+                <h2>Current Weather</h2>
                 <div id="current-data"></div>
-            </div>
-            
-            <div class="farming-conditions">
-                <h2>Farming Conditions</h2>
-                <div id="soil-data"></div>
-                <div id="precipitation-chance"></div>
                 <div id="wind-conditions"></div>
             </div>
 
             <div class="forecast">
-                <h2>5-Day Forecast</h2>
+                <h2>Weather Details</h2>
                 <div id="forecast-container"></div>
             </div>
         </div>
     </div>
     <script src="app.js"></script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js')
+                .then(registration => console.log('ServiceWorker registration successful'))
+                .catch(err => console.log('ServiceWorker registration failed: ', err));
+        }
+    </script>
 </body>
 </html>
