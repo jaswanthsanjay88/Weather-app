@@ -20,10 +20,15 @@ document.getElementById('searchCity').addEventListener('click', handleCitySearch
 document.getElementById('getLocation').addEventListener('click', getUserLocation);
 
 function initializeWeatherApp() {
-    // Start with a default city instead of geolocation
-    getWeatherData('London');
+    // Show initial message in weather display
+    document.getElementById('current-data').innerHTML = `
+        <div class="welcome-message">
+            <h3>Welcome to Weather Forecast</h3>
+            <p>Enter a city name or use your current location to get started</p>
+        </div>
+    `;
     
-    // Then try to get user's location in background
+    // Try to get user's location in background
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
             (position) => {
